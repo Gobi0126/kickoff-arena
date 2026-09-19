@@ -469,16 +469,29 @@ tbody tr:hover .col-actions {
   margin-bottom: 0.375rem;
 }
 
-.dialog input {
+.dialog input,
+.dialog select {
   width: 100%;
   box-sizing: border-box;
   padding: 0.625rem 0.75rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   font-size: 1rem;
+  color: #0f172a;
+  background: #fff;
 }
 
-.dialog input:focus {
+.dialog select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.dialog input:focus,
+.dialog select:focus {
   outline: none;
   border-color: #0f8a4c;
 }

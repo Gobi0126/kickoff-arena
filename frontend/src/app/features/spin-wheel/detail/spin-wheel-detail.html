@@ -153,6 +153,11 @@
 
           <form class="add-form" (ngSubmit)="addEntry()">
             <input type="text" name="manualName" placeholder="Player name" [(ngModel)]="manualName" />
+            <select name="manualCountryCode" [(ngModel)]="manualCountryCode" aria-label="Country code">
+              @for (c of countryCodes; track c.dialCode + c.name) {
+                <option [ngValue]="c.dialCode">{{ c.dialCode }}</option>
+              }
+            </select>
             <input type="tel" name="manualPhone" placeholder="Phone (optional)" [(ngModel)]="manualPhone" />
             <button type="submit" [disabled]="addingEntry() || !manualName.trim()">
               {{ addingEntry() ? 'Adding...' : '+ Add' }}

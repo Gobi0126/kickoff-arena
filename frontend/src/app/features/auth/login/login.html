@@ -9,7 +9,14 @@
     <p class="subtitle">Log in to manage your tournaments</p>
 
     <label for="phone">Phone number</label>
-    <input id="phone" type="tel" formControlName="phone" autocomplete="username" placeholder="98765 43210" />
+    <div class="phone-row">
+      <select formControlName="countryCode" aria-label="Country code">
+        @for (c of countryCodes; track c.dialCode + c.name) {
+          <option [ngValue]="c.dialCode">{{ c.dialCode }}</option>
+        }
+      </select>
+      <input id="phone" type="tel" formControlName="phone" autocomplete="username" placeholder="98765 43210" />
+    </div>
 
     <label for="password">Password</label>
     <input id="password" type="password" formControlName="password" autocomplete="current-password" placeholder="••••••••" />

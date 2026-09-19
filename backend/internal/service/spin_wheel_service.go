@@ -20,7 +20,7 @@ var (
 	ErrTiedScore            = errors.New("scores cannot be tied in a knockout match")
 	ErrMatchAlreadyComplete = errors.New("this match result has already been submitted")
 	ErrMatchNotReady        = errors.New("one or both players for this match are not decided yet")
-	ErrInvalidBracketSize   = errors.New("player count must be an even number between 2 and 64")
+	ErrInvalidBracketSize   = errors.New("player count must be 2, 4, 8, 16, 32, or 64")
 	ErrInvalidOrder         = errors.New("order must contain every registered player exactly once")
 	ErrBracketSizeTooSmall  = errors.New("player count cannot be less than the number of players already registered")
 )
@@ -59,8 +59,18 @@ const (
 	maxBracketSize = 64
 )
 
+// isValidBracketSize requires an exact power of two (2, 4, 8, 16, 32, 64) so
+// a single-elimination bracket never needs byes — every registered player
+// always has a real round-1 opponent.
+func isValidBracketSize(n int) bool {
+	if n < minBracketSize || n > maxBracketSize {
+		return false
+	}
+	return n&(n-1) == 0
+}
+
 func (s *spinWheelService) CreateTournament(ctx context.Context, createdBy, name string, bracketSize int) (*models.Tournament, error) {
-	if bracketSize%2 != 0 || bracketSize < minBracketSize || bracketSize > maxBracketSize {
+	if !isValidBracketSize(bracketSize) {
 		return nil, ErrInvalidBracketSize
 	}
 	return s.tournaments.CreateSpinWheel(ctx, name, createdBy, bracketSize)
@@ -93,7 +103,7 @@ func (s *spinWheelService) UpdateBracketSize(ctx context.Context, tournamentID, 
 	if t.Status != models.StatusRegistrationOpen {
 		return nil, ErrRegistrationClosed
 	}
-	if bracketSize%2 != 0 || bracketSize < minBracketSize || bracketSize > maxBracketSize {
+	if !isValidBracketSize(bracketSize) {
 		return nil, ErrInvalidBracketSize
 	}
 
@@ -423,26 +433,42 @@ func (s *spinWheelService) StartSpin(ctx context.Context, tournamentID, requeste
 	// standard way real single-elimination brackets handle odd sizes.
 	fullBracket := nextPowerOfTwo(len(shuffled))
 	numByes := fullBracket - len(shuffled)
+	totalSlots := fullBracket / 2
 
-	var matches []models.SpinWheelMatch
-	matchNumber := 1
-	idx := 0
-
-	for i := 0; i < numByes; i++ {
-		playerID := shuffled[idx].ID
-		idx++
-		m, err := s.spin.CreateByeMatch(ctx, tournamentID, 1, matchNumber, playerID)
-		if err != nil {
-			return nil, err
+	// Spread the bye slots evenly across round 1 instead of bunching them
+	// all at the front. Two adjacent match slots (2k-1, 2k) become each
+	// other's round-2 opponent (see tryAdvanceRound), so bunching byes
+	// together meant two players who never played round 1 would end up
+	// facing each other in round 2 anyway — effectively wasting a round
+	// for them. Spacing byes out means each one is paired against an
+	// actual round-1 winner next round whenever that's mathematically
+	// possible (i.e. as long as byes are at most half of the slots).
+	isByeSlot := make([]bool, totalSlots)
+	for i := 0; i < totalSlots; i++ {
+		if (i+1)*numByes/totalSlots > i*numByes/totalSlots {
+			isByeSlot[i] = true
 		}
-		matches = append(matches, *m)
-		if err := s.tryAdvanceRound(ctx, tournamentID, 1, matchNumber, playerID); err != nil {
-			return nil, err
-		}
-		matchNumber++
 	}
 
-	for idx < len(shuffled) {
+	var matches []models.SpinWheelMatch
+	idx := 0
+
+	for slot := 0; slot < totalSlots; slot++ {
+		matchNumber := slot + 1
+		if isByeSlot[slot] {
+			playerID := shuffled[idx].ID
+			idx++
+			m, err := s.spin.CreateByeMatch(ctx, tournamentID, 1, matchNumber, playerID)
+			if err != nil {
+				return nil, err
+			}
+			matches = append(matches, *m)
+			if err := s.tryAdvanceRound(ctx, tournamentID, 1, matchNumber, playerID); err != nil {
+				return nil, err
+			}
+			continue
+		}
+
 		p1 := shuffled[idx].ID
 		p2 := shuffled[idx+1].ID
 		idx += 2
@@ -451,7 +477,6 @@ func (s *spinWheelService) StartSpin(ctx context.Context, tournamentID, requeste
 			return nil, err
 		}
 		matches = append(matches, *m)
-		matchNumber++
 	}
 
 	return matches, nil

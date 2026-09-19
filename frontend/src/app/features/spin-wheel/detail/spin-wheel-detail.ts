@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SpinWheelService } from '../../../core/services/spin-wheel.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { SpinWheelEntry, SpinWheelMatch, Tournament } from '../../../core/models/tournament.model';
+import { COUNTRY_CODES, DEFAULT_COUNTRY_DIAL_CODE } from '../../../core/constants/country-codes';
 
 @Component({
   selector: 'app-spin-wheel-detail',
@@ -30,7 +31,9 @@ export class SpinWheelDetail implements OnInit {
   entryError = signal<string | null>(null);
   linkCopied = signal(false);
 
+  countryCodes = COUNTRY_CODES;
   manualName = '';
+  manualCountryCode = DEFAULT_COUNTRY_DIAL_CODE;
   manualPhone = '';
   addingEntry = signal(false);
 
@@ -124,7 +127,8 @@ export class SpinWheelDetail implements OnInit {
     if (!this.manualName.trim()) return;
     this.addingEntry.set(true);
     this.entryError.set(null);
-    this.service.addManualEntry(this.tournamentId, this.manualName.trim(), this.manualPhone.trim()).subscribe({
+    const fullPhone = this.manualPhone.trim() ? `${this.manualCountryCode}${this.manualPhone.trim()}` : '';
+    this.service.addManualEntry(this.tournamentId, this.manualName.trim(), fullPhone).subscribe({
       next: (entry) => {
         this.entries.update((list) => [...list, entry]);
         this.manualName = '';
@@ -248,8 +252,10 @@ export class SpinWheelDetail implements OnInit {
 
   roundLabel(round: number): string {
     const bracketSize = this.tournament()?.bracket_size ?? 0;
+    // Bracket sizes are restricted to powers of two, so fullBracket always
+    // equals bracketSize exactly — no byes, so "Round of N" always reflects
+    // the real number of players entering that round.
     const fullBracket = Math.pow(2, Math.ceil(Math.log2(Math.max(bracketSize, 1))));
-    // Number of players entering this particular round (halves each round).
     const participantsInRound = fullBracket / Math.pow(2, round - 1);
 
     if (participantsInRound === 2) return 'Final';

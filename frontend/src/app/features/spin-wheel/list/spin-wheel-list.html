@@ -175,15 +175,11 @@
         <p class="dialog-subtitle">{{ t.name }}</p>
 
         <label for="playerCount">Number of players</label>
-        <input
-          id="playerCount"
-          type="number"
-          min="2"
-          max="64"
-          step="2"
-          [(ngModel)]="playerCountDraft"
-          name="playerCount"
-        />
+        <select id="playerCount" [(ngModel)]="playerCountDraft" name="playerCount">
+          @for (size of bracketSizeOptions; track size) {
+            <option [ngValue]="size">{{ size }}</option>
+          }
+        </select>
 
         @if (editError()) {
           <p class="error">{{ editError() }}</p>

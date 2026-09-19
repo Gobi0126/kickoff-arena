@@ -9,16 +9,12 @@
     <input id="name" type="text" formControlName="name" placeholder="Friday Night Spin" />
 
     <label for="bracket_size">Number of players</label>
-    <input
-      id="bracket_size"
-      type="number"
-      formControlName="bracket_size"
-      min="2"
-      max="64"
-      step="2"
-      placeholder="e.g. 6, 8, 12..."
-    />
-    <p class="hint">Any even number — players who don't fit a full bracket auto-advance round 1</p>
+    <select id="bracket_size" formControlName="bracket_size">
+      @for (size of bracketSizeOptions; track size) {
+        <option [ngValue]="size">{{ size }}</option>
+      }
+    </select>
+    <p class="hint">Bracket sizes are powers of two so every player gets a real match — no byes</p>
     @if (bracketSizeErrors) {
       <p class="error">{{ bracketSizeErrors }}</p>
     }

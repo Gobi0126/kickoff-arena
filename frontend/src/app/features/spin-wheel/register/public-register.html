@@ -33,7 +33,14 @@
         <input id="name" type="text" name="name" [(ngModel)]="name" placeholder="Your name" required />
 
         <label for="phone">Phone (optional)</label>
-        <input id="phone" type="tel" name="phone" [(ngModel)]="phone" placeholder="98765 43210" />
+        <div class="phone-row">
+          <select name="countryCode" [(ngModel)]="countryCode" aria-label="Country code">
+            @for (c of countryCodes; track c.dialCode + c.name) {
+              <option [ngValue]="c.dialCode">{{ c.dialCode }}</option>
+            }
+          </select>
+          <input id="phone" type="tel" name="phone" [(ngModel)]="phone" placeholder="98765 43210" />
+        </div>
 
         @if (errorMessage()) {
           <p class="error">{{ errorMessage() }}</p>

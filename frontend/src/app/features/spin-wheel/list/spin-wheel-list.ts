@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { SpinWheelService } from '../../../core/services/spin-wheel.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { Tournament } from '../../../core/models/tournament.model';
+import { BRACKET_SIZE_OPTIONS } from '../create/create-tournament';
 
 type StatusFilter = 'all' | Tournament['status'];
 type SortOrder = 'newest' | 'oldest';
@@ -37,6 +38,7 @@ export class SpinWheelList implements OnInit {
   playerCountDraft = 0;
   savingEdit = signal(false);
   editError = signal<string | null>(null);
+  bracketSizeOptions = BRACKET_SIZE_OPTIONS;
 
   filteredTournaments = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();

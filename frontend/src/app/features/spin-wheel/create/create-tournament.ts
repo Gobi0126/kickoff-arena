@@ -1,13 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SpinWheelService } from '../../../core/services/spin-wheel.service';
 
-function evenNumberValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (value === null || value === '') return null;
-  return Number(value) % 2 === 0 ? null : { notEven: true };
-}
+// Bracket sizes are restricted to powers of two so a knockout bracket never
+// needs byes — every registered player always has a real round-1 opponent.
+export const BRACKET_SIZE_OPTIONS = [2, 4, 8, 16, 32, 64];
 
 @Component({
   selector: 'app-create-tournament',
@@ -22,19 +20,17 @@ export class CreateTournament {
 
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+  bracketSizeOptions = BRACKET_SIZE_OPTIONS;
 
   form = this.fb.nonNullable.group({
     name: ['', [Validators.required]],
-    bracket_size: [8, [Validators.required, Validators.min(2), Validators.max(64), evenNumberValidator]],
+    bracket_size: [8, [Validators.required]],
   });
 
   get bracketSizeErrors(): string | null {
     const control = this.form.controls.bracket_size;
     if (!control.touched || !control.errors) return null;
     if (control.errors['required']) return 'Player count is required';
-    if (control.errors['min']) return 'Must be at least 2 players';
-    if (control.errors['max']) return 'Must be 64 players or fewer';
-    if (control.errors['notEven']) return 'Player count must be an even number';
     return null;
   }
 
