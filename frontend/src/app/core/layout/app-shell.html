@@ -1,0 +1,52 @@
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/">⚽ Kickoff Arena</a>
+
+    <nav class="nav">
+      @if (auth.role() === 'admin') {
+        <a
+          class="nav-item"
+          routerLink="/admin/subadmins"
+          routerLinkActive="active"
+        >
+          <span class="icon">👥</span> Subadmins
+        </a>
+      } @else {
+        <a
+          class="nav-item"
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a
+          class="nav-item"
+          routerLink="/spin-wheel"
+          routerLinkActive="active"
+        >
+          <span class="icon">🎡</span> Spin Wheel
+        </a>
+        <span class="nav-item disabled">
+          <span class="icon">🏆</span> Auction
+          <span class="soon">Soon</span>
+        </span>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <span class="avatar">{{ auth.user()?.name?.charAt(0)?.toUpperCase() }}</span>
+        <div class="user-info">
+          <span class="name">{{ auth.user()?.name }}</span>
+          <span class="role">{{ displayRole() }}</span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="auth.logout()">Log out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

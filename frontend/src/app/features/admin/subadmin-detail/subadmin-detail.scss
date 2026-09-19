@@ -1,0 +1,146 @@
+:host {
+  display: block;
+}
+
+.page {
+  padding: 2.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.back-link {
+  display: block;
+  max-width: 640px;
+  margin: 0 0 1.5rem;
+  color: #0f5c33;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.status {
+  max-width: 640px;
+  text-align: center;
+  color: #667;
+}
+
+.status.error {
+  color: #dc2626;
+}
+
+.page-header {
+  max-width: 640px;
+  margin: 0 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e8f8ee;
+  color: #0f5c33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.375rem;
+  color: #0f172a;
+}
+
+.subtitle {
+  margin: 0.125rem 0 0;
+  color: #667;
+  font-size: 0.875rem;
+}
+
+.joined {
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.section {
+  max-width: 640px;
+  margin: 0 0 1rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.empty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.tour-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tour-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.tour-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tour-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.875rem;
+}
+
+.tour-meta {
+  color: #667;
+  font-size: 0.75rem;
+}
+
+.status-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-badge.registration_open {
+  background: #e8f8ee;
+  color: #0f5c33;
+}
+
+.status-badge.in_progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.completed {
+  background: #e0e7ff;
+  color: #3730a3;
+}

@@ -39,7 +39,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	routes.Register(r, pgPool)
+	routes.Register(r, pgPool, cfg.JWTSecret)
 
 	log.Printf("server listening on :%s", cfg.Port)
 	if err := r.Run(":" + cfg.Port); err != nil {

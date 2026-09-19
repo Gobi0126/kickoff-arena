@@ -1,0 +1,46 @@
+<div class="page">
+  <a class="back-link" routerLink="/admin/subadmins">← Back to subadmins</a>
+
+  @if (loading()) {
+    <p class="status">Loading...</p>
+  } @else if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  } @else if (detail()) {
+    <header class="page-header">
+      <div class="avatar">{{ detail()!.subadmin.name.charAt(0).toUpperCase() }}</div>
+      <div>
+        <h1>{{ detail()!.subadmin.name }}</h1>
+        <p class="subtitle">{{ detail()!.subadmin.phone }}</p>
+        <p class="joined">Joined {{ detail()!.subadmin.created_at | date: 'MMM d, y, h:mm a' }}</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2>🎡 Spin Wheels created</h2>
+      @if (detail()!.spinWheels.length === 0) {
+        <p class="empty">No spin wheels created yet.</p>
+      } @else {
+        <div class="tour-list">
+          @for (t of detail()!.spinWheels; track t.id) {
+            <div class="tour-row">
+              <div class="tour-info">
+                <span class="tour-name">{{ t.name }}</span>
+                <span class="tour-meta">
+                  {{ t.bracket_size }} players · Created {{ t.created_at | date: 'MMM d, y, h:mm a' }}
+                </span>
+              </div>
+              <span class="status-badge" [class]="t.status">{{ t.status.replace('_', ' ') }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="section">
+      <h2>🏆 Auction Tours created</h2>
+      @if (detail()!.auctionTours.length === 0) {
+        <p class="empty">No auction tours created yet.</p>
+      }
+    </section>
+  }
+</div>

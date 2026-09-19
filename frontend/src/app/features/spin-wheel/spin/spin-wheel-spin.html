@@ -1,0 +1,80 @@
+<div class="page">
+  @if (loading()) {
+    <p class="status">Loading players...</p>
+  } @else if (errorMessage() && remaining().length === 0 && pickOrder().length === 0) {
+    <p class="status error">{{ errorMessage() }}</p>
+  } @else {
+    <a class="back-link" [routerLink]="['/spin-wheel', tournamentId]">← Back to tournament</a>
+
+    <header class="page-header">
+      <h1>{{ tournament()?.name }}</h1>
+      <p class="subtitle">Click the wheel to pick players one at a time</p>
+    </header>
+
+    <div class="layout">
+      @if (pickOrder().length > 0) {
+        <aside class="results-panel">
+          <h3>Pick order</h3>
+          <ol class="pick-list">
+            @for (entry of pickOrder(); track entry.id) {
+              <li>
+                <span class="dot" [style.background]="entry.color_hex"></span>
+                {{ entry.player_name }}
+              </li>
+            }
+          </ol>
+        </aside>
+      } @else {
+        <div></div>
+      }
+
+      <div class="wheel-area">
+        @if (!allPicked) {
+          <div class="wheel-wrap">
+            <div class="pointer"></div>
+            <div
+              class="wheel-spinner"
+              [style.transform]="'rotate(' + rotationDeg() + 'deg)'"
+              [style.transition]="spinning() ? 'transform 4.2s cubic-bezier(0.17, 0.67, 0.16, 0.99)' : 'none'"
+            >
+              <canvas #canvas width="480" height="480"></canvas>
+            </div>
+          </div>
+
+          @if (remaining().length === 2) {
+            <div class="choice-row">
+              <button class="spin-btn" [disabled]="spinning()" (click)="spin()">
+                {{ spinning() ? 'Spinning...' : 'Spin for it' }}
+              </button>
+              <button class="matchup-btn" [disabled]="spinning()" (click)="directMatchup()">
+                Direct Matchup
+              </button>
+            </div>
+            <p class="hint">Only 2 players left — spin for fun, or pair them directly</p>
+          } @else {
+            <button class="spin-btn" [disabled]="spinning()" (click)="spin()">
+              {{ spinning() ? 'Spinning...' : (pickOrder().length === 0 ? 'Click to Spin' : 'Spin Again') }}
+            </button>
+            <p class="hint">{{ remaining().length }} player(s) left on the wheel</p>
+          }
+        } @else {
+          <div class="done-panel">
+            <span class="icon">🎉</span>
+            <h2>All players picked!</h2>
+            <p>Review the order on the left, then create the fixtures.</p>
+
+            @if (errorMessage()) {
+              <p class="error">{{ errorMessage() }}</p>
+            }
+
+            <button class="confirm-btn" [disabled]="confirming()" (click)="confirmFixtures()">
+              {{ confirming() ? 'Creating fixtures...' : 'Confirm & Create Fixtures' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <div></div>
+    </div>
+  }
+</div>

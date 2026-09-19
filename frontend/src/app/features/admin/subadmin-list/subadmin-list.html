@@ -1,0 +1,53 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Subadmins</h1>
+      <p class="subtitle">Everyone who has signed up to create tournaments</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="status">Loading...</p>
+  } @else if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  } @else if (subadmins().length === 0) {
+    <p class="status">No subadmins have signed up yet.</p>
+  } @else {
+    @if (deleteError()) {
+      <p class="banner-error">{{ deleteError() }}</p>
+    }
+    <div class="list">
+      @for (subadmin of subadmins(); track subadmin.id) {
+        <a class="row" [routerLink]="['/admin/subadmins', subadmin.id]">
+          <div class="avatar">{{ subadmin.name.charAt(0).toUpperCase() }}</div>
+          <div class="info">
+            <span class="name">{{ subadmin.name }}</span>
+            <span class="phone">{{ subadmin.phone }}</span>
+            <span class="joined">Joined {{ subadmin.created_at | date: 'MMM d, y, h:mm a' }}</span>
+          </div>
+          <button
+            class="delete-btn"
+            title="Delete subadmin"
+            [disabled]="deletingId() === subadmin.id"
+            (click)="deleteSubadmin(subadmin, $event)"
+          >
+            @if (deletingId() === subadmin.id) {
+              <span class="spinner"></span>
+            } @else {
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.75 5.833h12.5M8.333 9.167v4.166M11.667 9.167v4.166M4.583 5.833l.834 8.334a1.667 1.667 0 0 0 1.666 1.5h4.834a1.667 1.667 0 0 0 1.666-1.5l.834-8.334M7.5 5.833V3.75a.833.833 0 0 1 .833-.833h3.334a.833.833 0 0 1 .833.833v2.083"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          </button>
+          <span class="arrow">→</span>
+        </a>
+      }
+    </div>
+  }
+</div>

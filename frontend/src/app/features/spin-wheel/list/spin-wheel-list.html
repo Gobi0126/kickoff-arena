@@ -1,0 +1,201 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Spin Wheel</h1>
+      <p class="subtitle">Tournaments you've created</p>
+    </div>
+    <a class="btn-primary" routerLink="/spin-wheel/new">+ Create Tournament</a>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event); resetToFirstPage()"
+      name="searchQuery"
+    />
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); resetToFirstPage()"
+      name="statusFilter"
+    >
+      <option value="all">All</option>
+      <option value="registration_open">Registration Open</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+    </select>
+    <button class="refresh-btn" [disabled]="refreshing()" (click)="refresh()">
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        [class.spinning]="refreshing()"
+      >
+        <path
+          d="M16.667 10a6.667 6.667 0 1 1-1.953-4.714M16.667 2.5v3.333h-3.333"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="status">Loading...</p>
+  } @else if (tournaments().length === 0) {
+    <div class="empty">
+      <span class="icon">🎡</span>
+      <p>You haven't created any spin wheel tournaments yet.</p>
+      <a class="btn-primary" routerLink="/spin-wheel/new">Create your first one</a>
+    </div>
+  } @else if (filteredTournaments().length === 0) {
+    <p class="status">No tournaments match your search/filter.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-sno">S.No</th>
+            <th>Tournament</th>
+            <th>Players</th>
+            <th>Status</th>
+            <th class="sortable" (click)="toggleCreatedAtSort()">
+              Created At
+              <span class="sort-arrows">
+                <svg class="arrow-up" [class.active]="createdAtSort() === 'oldest'" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L5 1L9 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <svg class="arrow-down" [class.active]="createdAtSort() === 'newest'" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+            </th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of pagedTournaments(); track t.id; let i = $index) {
+            <tr [routerLink]="['/spin-wheel', t.id]">
+              <td class="col-sno">{{ rangeStart() + i }}</td>
+              <td class="col-name">{{ t.name }}</td>
+              <td>{{ t.bracket_size }}</td>
+              <td>
+                <span class="status-badge" [class]="t.status">{{ statusLabel(t.status) }}</span>
+              </td>
+              <td>{{ t.created_at | date: 'MMM d, y, h:mm a' }}</td>
+              <td class="col-actions">
+                @if (t.status === 'registration_open') {
+                  <button class="icon-btn icon-btn-edit" title="Edit player count" (click)="openEdit(t, $event)">
+                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M14.166 2.5a1.768 1.768 0 0 1 2.5 2.5l-9.583 9.584-3.333.833.833-3.334 9.583-9.583Z"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                }
+                <button
+                  class="icon-btn icon-btn-danger"
+                  title="Delete tournament"
+                  [disabled]="deletingId() === t.id"
+                  (click)="deleteTournament(t, $event)"
+                >
+                  @if (deletingId() === t.id) {
+                    <span class="spinner"></span>
+                  } @else {
+                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M3.75 5.833h12.5M8.333 9.167v4.166M11.667 9.167v4.166M4.583 5.833l.834 8.334a1.667 1.667 0 0 0 1.666 1.5h4.834a1.667 1.667 0 0 0 1.666-1.5l.834-8.334M7.5 5.833V3.75a.833.833 0 0 1 .833-.833h3.334a.833.833 0 0 1 .833.833v2.083"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  }
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-info">
+        Showing {{ rangeStart() }} to {{ rangeEnd() }} of {{ filteredTournaments().length }} entries
+      </span>
+
+      <div class="pagination-controls">
+        <button class="page-nav" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        @for (p of pageNumbers(); track p) {
+          @if (p === '…') {
+            <span class="page-ellipsis">…</span>
+          } @else {
+            <button class="page-num" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+          }
+        }
+        <button class="page-nav" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+        <select
+          class="page-size-select"
+          [ngModel]="pageSize()"
+          (ngModelChange)="changePageSize($event)"
+          name="pageSize"
+        >
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  }
+
+  @if (editingTournament(); as t) {
+    <div class="overlay" (click)="closeEdit()">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <button class="close-btn" title="Close" (click)="closeEdit()">✕</button>
+        <h3>Edit player count</h3>
+        <p class="dialog-subtitle">{{ t.name }}</p>
+
+        <label for="playerCount">Number of players</label>
+        <input
+          id="playerCount"
+          type="number"
+          min="2"
+          max="64"
+          step="2"
+          [(ngModel)]="playerCountDraft"
+          name="playerCount"
+        />
+
+        @if (editError()) {
+          <p class="error">{{ editError() }}</p>
+        }
+
+        <div class="dialog-actions">
+          <button class="cancel-btn" (click)="closeEdit()">Cancel</button>
+          <button class="confirm-btn" [disabled]="savingEdit()" (click)="saveEdit()">
+            {{ savingEdit() ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

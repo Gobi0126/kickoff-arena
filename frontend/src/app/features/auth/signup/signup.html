@@ -1,0 +1,33 @@
+<div class="auth-page">
+  <div class="field-lines"></div>
+
+  <a class="brand" routerLink="/">⚽ Kickoff Arena</a>
+
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
+    <span class="badge">Admin</span>
+    <h1>Create your account</h1>
+    <p class="subtitle">Start creating spin wheels and auction tournaments</p>
+
+    <label for="name">Name</label>
+    <input id="name" type="text" formControlName="name" autocomplete="name" placeholder="Your name" />
+
+    <label for="phone">Phone number</label>
+    <input id="phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="98765 43210" />
+
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" autocomplete="new-password" placeholder="••••••••" />
+    <p class="hint">At least 8 characters</p>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Creating account...' : 'Sign up' }}
+    </button>
+
+    <p class="switch">
+      Already have an account? <a routerLink="/login">Log in</a>
+    </p>
+  </form>
+</div>

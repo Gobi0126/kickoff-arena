@@ -5,6 +5,7 @@
 backend/.env
 backend/tmp/
 backend/*.exe
+backend/server
 
 # Frontend (Angular / Node)
 frontend/node_modules/

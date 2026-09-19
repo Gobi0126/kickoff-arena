@@ -1,0 +1,48 @@
+<div class="auth-page">
+  <div class="field-lines"></div>
+
+  <span class="brand">⚽ Kickoff Arena</span>
+
+  <div class="auth-card">
+    @if (loading()) {
+      <p class="status">Loading...</p>
+    } @else if (notFound()) {
+      <h1>Not found</h1>
+      <p class="subtitle">This registration link doesn't exist or has been removed.</p>
+    } @else if (submitted()) {
+      <div class="success">
+        <span class="icon">✅</span>
+        <h1>You're in!</h1>
+        <p class="subtitle">
+          You've registered for <strong>{{ tournament()!.name }}</strong>. The organizer will
+          share the matchups once the spin happens.
+        </p>
+      </div>
+    } @else if (tournament()!.status !== 'registration_open') {
+      <h1>Registration closed</h1>
+      <p class="subtitle">
+        Registration for <strong>{{ tournament()!.name }}</strong> has already closed.
+      </p>
+    } @else {
+      <span class="badge">Spin Wheel</span>
+      <h1>{{ tournament()!.name }}</h1>
+      <p class="subtitle">Register to be entered into the wheel</p>
+
+      <form (ngSubmit)="submit()">
+        <label for="name">Your name</label>
+        <input id="name" type="text" name="name" [(ngModel)]="name" placeholder="Your name" required />
+
+        <label for="phone">Phone (optional)</label>
+        <input id="phone" type="tel" name="phone" [(ngModel)]="phone" placeholder="98765 43210" />
+
+        @if (errorMessage()) {
+          <p class="error">{{ errorMessage() }}</p>
+        }
+
+        <button type="submit" [disabled]="submitting() || !name.trim()">
+          {{ submitting() ? 'Registering...' : 'Register' }}
+        </button>
+      </form>
+    }
+  </div>
+</div>
